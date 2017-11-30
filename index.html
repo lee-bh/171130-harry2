@@ -71,7 +71,7 @@ try {
     
 
 
-var Sound = new SoundBH("./js/sound2.mp3",16);
+var Sound = new SoundBH("./sound2.mp3",16);
 
 audio_file.onchange = function(){
   Sound.change(URL.createObjectURL(this.files[0]));
@@ -232,12 +232,12 @@ camera.position.z = 1800;
       Sound.change("sound1.mp3");
   });
 
-  mesh1.on('click', function()
+  mesh2.on('click', function()
   {
       Sound.change("sound2.mp3");
   });
 
-  mesh1.on('click', function()
+  mesh3.on('click', function()
   {
       Sound.change("sound3.mp3");
   });
