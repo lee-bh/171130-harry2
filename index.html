@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>three.js webgl - geometry - vertex colors</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    
+    <style>
+      body {color: #808080;
+            font-family:Monospace;
+            font-size:13px;
+            text-align:center;
+            background-color: #fff;
+            margin: 0px;
+            overflow: hidden;}
+      a {color: #0080ff;}
+    </style>
+
+
+</head>
+
+
+<body>
+
+  
+    <!-- 이 버튼에 대한 스크립트는 끝에 있어요 -->
+    <button id="playBut">play</button>
+    <button id="pauseBut">pause</button>&nbsp;&nbsp;&nbsp;
+    <input id="audio_file" type="file" accept="audio/*" />
+
+
+    <div id="container"></div>
+
+
+    <script src="js/three.js"></script>
+    <script src="js/Detector.js"></script>
+    <script src="js/stats.min.js"></script>
+    <script src="js/DragControls.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="js/soundBH.js"></script>
+
+
+
+<script>
+  jQuery(document).ready(function($) {
+    var container, stats;
+    var camera, scene, renderer;
+    var mesh, group1, group2, group3, light;
+    var mouseX = 0, mouseY = 0;
+    var delta = 0, dist;
+    var windowHalfX = window.innerWidth / 2;
+    var windowHalfY = window.innerHeight / 2;
+    var toDrag = [];
+    var velocity = new THREE.Vector3();
+      var direction = new THREE.Vector3();
+
+
+
+/* Try instantiating a new AudioContext, throw an error if it fails. */
+try {
+  context = new AudioContext();
+  processor = context.createScriptProcessor(1024);
+  analyser = context.createAnalyser();
+  processor.connect(context.destination);
+  analyser.connect(processor);
+  data = new Uint8Array(analyser.frequencyBinCount);
+} catch(e) {
+  throw new Error('The Web Audio API is unavailable');
+}
+
+    
+
+
+var Sound = new SoundBH("./js/sound2.mp3",16);
+
+audio_file.onchange = function(){
+  Sound.change(URL.createObjectURL(this.files[0]));
+  console.log("changed!!");
+};
+
+    playBut.onclick = function(){ Sound.play();};  
+    pauseBut.onclick = function(){ Sound.pause();};
+// visualization code
+
+const CUBES_NUM = 70
+    , STEP = Math.floor(data.length / CUBES_NUM)
+    , NO_SIGNAL = 160;
+
+
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(20,
+      window.innerWidth / window.innerHeight, 1, 10000);
+camera.position.z = 1800;
+
+
+
+
+    //light
+    var ambientLight = new THREE.AmbientLight(0xcccccc);
+    scene.add(ambientLight);
+
+    var directionalLight = new THREE.DirectionalLight(0xffffff);
+    directionalLight.position.set(2, 2, 0.5).normalize();
+    directionalLight.intensity = 0.75;
+    scene.add(directionalLight);
+
+
+
+
+    //renderer
+    var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+
+
+
+
+
+
+    //shape
+    geometry = new THREE.OctahedronBufferGeometry(30, 0);
+
+  
+    //material
+    material = new THREE.MeshNormalMaterial(  );
+    
+
+    //shape + material
+    mesh1 = new THREE.Mesh(geometry, material);
+    mesh1.position.x = -400;
+    mesh1.rotation.x = 0;
+    scene.add(mesh1);
+    toDrag.push(mesh1);
+
+    mesh2 = new THREE.Mesh(geometry, material);
+    mesh2.position.x = 0;
+    mesh2.rotation.x = 0;
+    scene.add(mesh2);
+    toDrag.push(mesh2);
+
+
+    mesh3 = new THREE.Mesh(geometry, material);
+    mesh3.position.x = 400;
+    mesh3.rotation.x = 0;
+    scene.add(mesh3);
+    toDrag.push(mesh3);
+    
+
+  var floorGeometry = new THREE.PlaneGeometry( 80000, 80000, 100, 100 );
+        floorGeometry.rotateX( - Math.PI / 2 );
+        for ( var i = 0, l = floorGeometry.vertices.length; i < l; i ++ ) {
+          var vertex = floorGeometry.vertices[ i ];
+          vertex.x += Math.random() * 20 - 10;
+          vertex.y += Math.random() * -500 - 300;
+          vertex.z += Math.random() * -85 ;
+
+        }
+        for ( var i = 0, l = floorGeometry.faces.length; i < l; i ++ ) {
+          var face = floorGeometry.faces[ i ];
+          face.vertexColors[ 0 ] = new THREE.Color().setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
+          face.vertexColors[ 1 ] = new THREE.Color().setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
+          face.vertexColors[ 2 ] = new THREE.Color().setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
+        }
+        var floorMaterial = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } );
+        var floor = new THREE.Mesh( floorGeometry, floorMaterial );
+        scene.add( floor );
+
+
+    //drag
+    var dragControls = new THREE.DragControls( toDrag, camera, renderer.domElement );
+      dragControls.addEventListener( 'dragstart', function ( e ) {
+    });
+      dragControls.addEventListener( 'dragend', function ( e ) {
+    });
+  
+    //mousemove
+    function onDocumentMouseMove( event ) {
+      mouseX = ( event.clientX - windowHalfX );
+      mouseY = ( event.clientY - windowHalfY );
+    }
+
+
+
+    function render() {
+    requestAnimationFrame(render);
+
+    mesh1.rotation.x += 0.01;
+    mesh1.rotation.y += 0.01;
+    mesh2.rotation.x += 0.01;
+    mesh2.rotation.y += 0.01;
+    mesh3.rotation.x += 0.01;
+    mesh3.rotation.y += 0.01;
+
+    for (let i = 0, n = 0; i < toDrag.length; i++, n+=STEP) {
+    let val = Sound.getGain() / ( NO_SIGNAL * 25 );
+
+    toDrag[i].scale.y -= 0.85;
+    toDrag[i].scale.y += Sound.getGain() / ( NO_SIGNAL * 25 );
+    toDrag[i].scale.x -= 0.85;
+    toDrag[i].scale.x += Sound.getGain() / ( NO_SIGNAL * 25);
+
+
+    if (toDrag[i].scale.x <= 1) {
+      toDrag[i].scale.y = 1;
+      toDrag[i].scale.x = 1;
+    }
+
+    toDrag[i].position.y = (toDrag[i].scale.y / 2) - 0.5;
+    }
+
+
+    delta += 0.006;
+    dist = 8;
+
+
+  
+    camera.position.x += ( mouseX - camera.position.x) * 0.1;
+    camera.position.y += (- mouseY - camera.position.y) * 0.1;
+  
+    camera.lookAt(scene.position);
+    renderer.render(scene, camera);
+    }
+
+    render();
+
+
+  mesh1.on('click', function()
+  {
+      Sound.change("sound1.mp3");
+  });
+
+  mesh1.on('click', function()
+  {
+      Sound.change("sound2.mp3");
+  });
+
+  mesh1.on('click', function()
+  {
+      Sound.change("sound3.mp3");
+  });
+
+  var windowHalfX = window.innerWidth / 2;
+  var windowHalfY = window.innerHeight / 2;
+  function onWindowResize() {
+    windowHalfX = window.innerWidth / 2;
+    windowHalfY = window.innerHeight / 2;
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+  window.addEventListener("resize", onWindowResize, false);
+});
+
+
+</script>
+
+
+<style>
+
+body {
+  margin: 0;
+  background: #fff;
+}
+
+</style>
