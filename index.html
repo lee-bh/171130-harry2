@@ -15,8 +15,6 @@
             overflow: hidden;}
       a {color: #0080ff;}
     </style>
-
-
 </head>
 
 
@@ -64,7 +62,6 @@ jQuery(document).ready(function($) {
 const CUBES_NUM = 70;
 const STEP = 16;
 const NO_SIGNAL = 140;
-
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 1, 10000);
@@ -114,24 +111,25 @@ camera.position.z = 1800;
     scene.add(mesh3);
     toDrag.push(mesh3);
     
-  var floorGeometry = new THREE.PlaneGeometry( 80000, 80000, 100, 100 );
-        floorGeometry.rotateX( - Math.PI / 2 );
-        for ( var i = 0, l = floorGeometry.vertices.length; i < l; i ++ ) {
-          var vertex = floorGeometry.vertices[ i ];
-          vertex.x += Math.random() * 20 - 10;
-          vertex.y += Math.random() * -500 - 300;
-          vertex.z += Math.random() * -85 ;
+var floorGeometry = new THREE.PlaneGeometry( 80000, 80000, 100, 100 );
+    floorGeometry.rotateX( - Math.PI / 2 );
+    for ( var i = 0, l = floorGeometry.vertices.length; i < l; i ++ ) {
+      var vertex = floorGeometry.vertices[ i ];
+      vertex.x += Math.random() * 20 - 10;
+      vertex.y += Math.random() * -500 - 300;
+      vertex.z += Math.random() * -85 ;
+    }
 
-        }
-
-        for ( var i = 0, l = floorGeometry.faces.length; i < l; i ++ ) {
-          var face = floorGeometry.faces[ i ];
-          face.vertexColors[ 0 ] = new THREE.Color().setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
-          face.vertexColors[ 1 ] = new THREE.Color().setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
-          face.vertexColors[ 2 ] = new THREE.Color().setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
-        }
-        var floorMaterial = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } );
-        var floor = new THREE.Mesh( floorGeometry, floorMaterial );
+    for ( var i = 0, l = floorGeometry.faces.length; i < l; i ++ ) {
+      var face = floorGeometry.faces[ i ];
+      face.vertexColors[ 0 ] = new THREE.Color().setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
+      face.vertexColors[ 1 ] = new THREE.Color().setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
+      face.vertexColors[ 2 ] = new THREE.Color().setHSL( Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
+    }
+    
+    var floorMaterial = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } );
+    
+    var floor = new THREE.Mesh( floorGeometry, floorMaterial );
         scene.add( floor );
 
 
@@ -142,21 +140,29 @@ camera.position.z = 1800;
       dragControls.addEventListener( 'dragend', function ( e ) {
     });
 
-    
+
+// 지금 마우스의 위치에 광선을 쏴서 겹치는 오브젝트를 검출한다.
+
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2();
     document.addEventListener('mousedown', onDocumentMouseDown, false);
 
     function onDocumentMouseDown(event) {
       event.preventDefault();
-      raycaster.setFromCamera( mouse, camera);
+      //마우스의 좌표값을 먼저 계산하고
       mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
       mouse.y = - (event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+      //마우스의 위치에 광선을 세팅
+      raycaster.setFromCamera( mouse, camera);
+      
+      //겹치는 오브젝트를 intersects로 저장(배열)
       var intersects = raycaster.intersectObjects( toDrag );
       
+      //어차피 겹치는 오브젝트가 하나 아니면 0이기 때문에, 겹치는 것이 있으면 intersects[0]이 바로 클릭한 오브젝트다.
       if( intersects.length > 0 ) {
         intersects[0].object.rotation.x -= 1;
         intersects[0].object.rotation.y -= 1;
+        //오브젝트의 이름을 보고 그에 맞게 사운드를 바꿔준다.
         if(intersects[0].object.name == "mesh1"){
           Sound.change("sound1.mp3");
         }else if(intersects[0].object.name == "mesh2"){
@@ -166,7 +172,6 @@ camera.position.z = 1800;
         }
       }
     }
-
 
     //mousemove
     function onDocumentMouseMove( event ) {
@@ -213,6 +218,7 @@ camera.position.z = 1800;
 
   var windowHalfX = window.innerWidth / 2;
   var windowHalfY = window.innerHeight / 2;
+  
   function onWindowResize() {
     windowHalfX = window.innerWidth / 2;
     windowHalfY = window.innerHeight / 2;
@@ -220,6 +226,7 @@ camera.position.z = 1800;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   }
+
   window.addEventListener("resize", onWindowResize, false);
 });
 
