@@ -165,13 +165,13 @@ var floorGeometry = new THREE.PlaneGeometry( 80000, 80000, 100, 100 );
         //오브젝트의 이름을 보고 그에 맞게 사운드를 바꿔준다.
         if(intersects[0].object.name == "mesh1"){
           Sound.change("sound1.mp3");
-          speed1 = 0.02; speed2 = 0.01; speed3 = 0.01;
+          speed1 = 0.04; speed2 = 0.01; speed3 = 0.01;
         }else if(intersects[0].object.name == "mesh2"){
           Sound.change("sound2.mp3");
-          speed1 = 0.01; speed2 = 0.02; speed3 = 0.01;
+          speed1 = 0.01; speed2 = 0.04; speed3 = 0.01;
         }else if(intersects[0].object.name == "mesh3"){
           Sound.change("sound3.mp3");
-          speed1 = 0.01; speed2 = 0.01; speed3 = 0.02;
+          speed1 = 0.01; speed2 = 0.01; speed3 = 0.04;
         }
       }
     }
