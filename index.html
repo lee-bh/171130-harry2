@@ -165,10 +165,13 @@ var floorGeometry = new THREE.PlaneGeometry( 80000, 80000, 100, 100 );
         //오브젝트의 이름을 보고 그에 맞게 사운드를 바꿔준다.
         if(intersects[0].object.name == "mesh1"){
           Sound.change("sound1.mp3");
+          speed1 = 0.02; speed2 = 0.01; speed3 = 0.01;
         }else if(intersects[0].object.name == "mesh2"){
           Sound.change("sound2.mp3");
+          speed1 = 0.01; speed2 = 0.02; speed3 = 0.01;
         }else if(intersects[0].object.name == "mesh3"){
           Sound.change("sound3.mp3");
+          speed1 = 0.01; speed2 = 0.01; speed3 = 0.02;
         }
       }
     }
@@ -179,15 +182,19 @@ var floorGeometry = new THREE.PlaneGeometry( 80000, 80000, 100, 100 );
       mouseY = ( event.clientY - windowHalfY );
     }
 
+    var speed1 = 0.01;
+    var speed2 = 0.01;
+    var speed3 = 0.01;
+
     function render() {
       requestAnimationFrame(render);
 
-      mesh1.rotation.x += 0.01;
-      mesh1.rotation.y += 0.01;
-      mesh2.rotation.x += 0.01;
-      mesh2.rotation.y += 0.01;
-      mesh3.rotation.x += 0.01;
-      mesh3.rotation.y += 0.01;
+      mesh1.rotation.x += speed1;
+      mesh1.rotation.y += speed1;
+      mesh2.rotation.x += speed2;
+      mesh2.rotation.y += speed2;
+      mesh3.rotation.x += speed3;
+      mesh3.rotation.y += speed3;
 
       for (let i = 0, n = 0; i < toDrag.length; i++, n+=STEP) {
 
